@@ -5,3 +5,4 @@ pycaret
 numpy
 panda
 sklearn
+display
