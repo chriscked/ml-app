@@ -223,8 +223,8 @@ def main():
                 final_pred_lr = predict_model(tuned_lr)
                 st.markdown('## Results: ##')
                 
-                st.dataframe(final_pred_lr[1])                
-                st.dataframe(final_pred_lr[0])
+                st.dataframe(display(final_pred_lr[1]))              
+                #st.dataframe(final_pred_lr[0])
 
                 data_load_state.text("Done! Process Complete")
                 #8 finalise model - full data without
