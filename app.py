@@ -226,7 +226,7 @@ def main():
                 #st.dataframed(final_pred_lr[1])                             
                 #st.dataframe(final_pred_lr[0])
 
-                st.write(final_pred_lr)
+                st.dataframe(final_pred_lr)
 
                 data_load_state.text("Done! Process Complete")
                 #8 finalise model - full data without
