@@ -14,6 +14,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
+from sklearn.preprocessing import StandardScaler
 
 from pycaret.datasets import get_data
 from pycaret.classification import *
@@ -26,7 +27,7 @@ def main():
     
     st.title('ML App')
     
-    activities = ['EDA', 'Plot', 'Model Building', 'Alternative ML', 'ML']
+    activities = ['EDA', 'Plot', 'Model Building', 'ML']
     choice = st.sidebar.selectbox('Select Activity', activities)
 
     if choice == 'EDA':
@@ -105,57 +106,50 @@ def main():
 
         data = st.file_uploader('Upload Dataset', type=['csv'])
         if data is not None:
-            df = pd.read_csv(data)
-            st.dataframe(df.head(10))
 
-            X = df.iloc[:,0:-1]
+            df = pd.read_csv(data)                       
+            st.dataframe(df)
+            scaler = StandardScaler()
 
-            Y = df.iloc[:, -1]            
+            all_columns_names = df.columns.to_list()
+            select_feature = st.selectbox('Select Feature', all_columns_names)            
 
-            seed = 7
+            X = df.drop(columns=[select_feature])
+            ObjectColumns = X.dtypes[X.dtypes == np.object]
+            Y = df[select_feature]  #target
+            seed = 7 
 
-            models = []
-            models.append(('LR', LogisticRegression()))
-            models.append(('LDA', LinearDiscriminantAnalysis()))
-            models.append(('KNN', KNeighborsClassifier()))
-            models.append(('CART', DecisionTreeClassifier()))
-            models.append(('NB', GaussianNB()))
-            models.append(('SVM', SVC()))
+            if ObjectColumns.empty is False:
+                categorical_features = X.select_dtypes(include=['object']).columns
+                df_ohe = pd.get_dummies(categorical_features)
 
-            model_names = []
-            model_mean = []
-            model_std = []
-            all_models = []
-            scoring = 'accuracy'
+            elif ObjectColumns.empty is True:        
 
-            for name, model in models:
-                kfold = model_selection.KFold(n_splits=10, random_state=seed)
-                cv_results = model_selection.cross_val_score(model, X, Y, cv=kfold, scoring=scoring)
-                model_names.append(name)
-                model_mean.append(cv_results.mean())
-                model_std.append(cv_results.std())
-                accuracy_results = {'model_name': name, 'model_accuracy':cv_results.mean(), 'standard_deviation':cv_results.std()}
-                all_models.append(accuracy_results)
+                models = [('LR', LogisticRegression()),
+                            ('LDA', LinearDiscriminantAnalysis()),
+                            ('KNN', KNeighborsClassifier()),
+                            ('CART', DecisionTreeClassifier()),
+                            ('NB', GaussianNB()),
+                            ('SVM', SVC())                            
+                            ]
 
-            if st.checkbox('Metrics as Table'):
-                st.dataframe(pd.DataFrame(zip(model_names, model_mean, model_std)))
+                model_names = []
+                model_mean = []
+                model_std = []
+                all_models = []
+                scoring = 'accuracy'
 
-    elif choice == 'Alternative ML':
-        st.subheader('Alternative ML')
+                for name, model in models:
+                    kfold = model_selection.KFold(n_splits=10, random_state=seed)
+                    cv_results = model_selection.cross_val_score(model, X, Y, cv=kfold, scoring=scoring)
+                    model_names.append(name)
+                    model_mean.append(cv_results.mean())
+                    model_std.append(cv_results.std())
+                    accuracy_results = {'model_name': name, 'model_accuracy':cv_results.mean(), 'standard_deviation':cv_results.std()}
+                    all_models.append(accuracy_results)
 
-        data = st.file_uploader('Upload Dataset', type=['csv'])
-        if data is not None:
-
-            df = pd.read_csv(data)
-            st.dataframe(df.head(10))
-            df1=df.drop(columns=['Species'])
-            data_types = df1.dtypes.value_counts()
-            st.write(df1)
-            if data_types.object:
-                st.write('yes')
-
-            else:
-                st.write('no')
+                if st.checkbox('Metrics as Table'):
+                    st.dataframe(pd.DataFrame(zip(model_names, model_mean, model_std)))
 
     
     elif choice == 'ML':
