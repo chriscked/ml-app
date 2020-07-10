@@ -27,7 +27,7 @@ def main():
     
     st.title('ML App')
     
-    activities = ['EDA', 'Plot', 'Model Building', 'ML']
+    activities = ['EDA', 'Plot', 'Model Building']
     choice = st.sidebar.selectbox('Select Activity', activities)
 
     if choice == 'EDA':
@@ -151,7 +151,7 @@ def main():
                 if st.checkbox('Metrics as Table'):
                     st.dataframe(pd.DataFrame(zip(model_names, model_mean, model_std)))
 
-    
+    '''
     elif choice == 'ML':
         st.subheader('ML')
                  
@@ -228,6 +228,6 @@ def main():
                 #9 Predict unseen data - 5% from original data
                 #unseen_predictions = predict_model(final_dt, data=data_unseen)                
                 #st.dataframe(unseen_predictions.head(20))                        
-
+        '''
 if __name__ == '__main__':
     main()
